@@ -1,0 +1,102 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-muted: var(--ink-muted);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Greemoer palette: near-black ink, warm off-white paper, Greemoer yellow, restrained greys */
+:root {
+  color-scheme: light;
+  --background: #f4f1ea;
+  --foreground: #141413;
+  --card: #fbfaf6;
+  --card-foreground: #141413;
+  --popover: #fbfaf6;
+  --popover-foreground: #141413;
+  --primary: #141413;
+  --primary-foreground: #f4f1ea;
+  --secondary: #e9e5dc;
+  --secondary-foreground: #141413;
+  --muted: #ebe7de;
+  --muted-foreground: #6b6862;
+  --accent: #e9e5dc;
+  --accent-foreground: #141413;
+  --destructive: #b42318;
+  --border: #ddd8cc;
+  --input: #d6d0c3;
+  --ring: #141413;
+  --radius: 0.75rem;
+
+  --brand: #ffc72c;
+  --brand-foreground: #141413;
+  --ink: #141413;
+  --ink-foreground: #f4f1ea;
+  --ink-muted: #8f8b83;
+
+  --sidebar: #141413;
+  --sidebar-foreground: #f4f1ea;
+  --sidebar-primary: #ffc72c;
+  --sidebar-primary-foreground: #141413;
+  --sidebar-accent: #23221f;
+  --sidebar-accent-foreground: #f4f1ea;
+  --sidebar-border: #2a2926;
+  --sidebar-ring: #ffc72c;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  ::selection {
+    background: var(--brand);
+    color: var(--brand-foreground);
+  }
+}
