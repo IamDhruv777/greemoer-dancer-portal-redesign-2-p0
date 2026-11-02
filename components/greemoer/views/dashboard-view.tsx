@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowRight, Plus } from 'lucide-react'
+import { MacbookScroll } from '@/components/ui/macbook-scroll'
 import { daysUntil } from '@/lib/greemoer/format'
 import { useApplyDialog } from '../apply-dialog'
 import { matchingStyles, OpportunityCard } from '../opportunity-card'
@@ -45,7 +46,7 @@ export function DashboardView() {
               Edit
             </button>
           </div>
-          <ProfilePreviewCard profile={profile} onOpen={() => navigate('profile')} />
+          <ProfilePreviewCard tilt profile={profile} onOpen={() => navigate('profile')} />
         </section>
 
         <section aria-labelledby="portfolio-heading" className="flex flex-col gap-5 lg:col-span-8">
@@ -75,6 +76,22 @@ export function DashboardView() {
           />
         </section>
       </div>
+
+      <section
+        aria-labelledby="showcase-heading"
+        className="overflow-hidden rounded-3xl bg-ink text-ink-foreground"
+      >
+        <MacbookScroll
+          className="min-h-[130vh] md:py-24"
+          src={portfolio[0]?.thumbnailUrl || profile.photoUrl || '/placeholder.svg'}
+          alt={`${profile.stageName} portfolio preview`}
+          title={
+            <span id="showcase-heading" className="font-display text-4xl font-normal text-ink-foreground">
+              Your work, on every booker&apos;s <em className="text-brand italic">screen.</em>
+            </span>
+          }
+        />
+      </section>
 
       <section aria-labelledby="opps-heading" className="flex flex-col gap-6">
         <SectionHeader

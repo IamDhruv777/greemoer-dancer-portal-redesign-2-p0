@@ -1,11 +1,33 @@
 'use client'
 
 import { ArrowUpRight, ImageIcon, MapPin, Plane, UserRound } from 'lucide-react'
+import { CardBody, CardContainer, CardItem } from '@/components/ui/3d-card'
 import { cn } from '@/lib/utils'
 import type { DancerProfile } from '@/lib/greemoer/types'
 import { Chip, Eyebrow, VerificationBadge } from './primitives'
 
 export function ProfilePreviewCard({
+  tilt = false,
+  ...props
+}: {
+  profile: DancerProfile
+  onOpen?: () => void
+  className?: string
+  tilt?: boolean
+}) {
+  if (!tilt) return <ProfileCardBody {...props} />
+  return (
+    <CardContainer containerClassName="block py-0" className="block w-full">
+      <CardBody className="h-auto w-full">
+        <CardItem translateZ={30} className="w-full">
+          <ProfileCardBody {...props} />
+        </CardItem>
+      </CardBody>
+    </CardContainer>
+  )
+}
+
+function ProfileCardBody({
   profile,
   onOpen,
   className,
