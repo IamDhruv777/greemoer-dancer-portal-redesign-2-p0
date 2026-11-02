@@ -19,6 +19,21 @@ const STEP = 1 / SIM_HZ;
 const BRUSH_RADIUS = 1.1;
 const PUSH_PER_CELL = 0.16;
 
+let webGLSupport: boolean | null = null;
+
+function isWebGLAvailable() {
+  if (webGLSupport !== null) return webGLSupport;
+  try {
+    const probe = document.createElement("canvas");
+    const gl = probe.getContext("webgl2") ?? probe.getContext("webgl");
+    webGLSupport = Boolean(gl);
+    (gl as WebGLRenderingContext | null)?.getExtension("WEBGL_lose_context")?.loseContext();
+  } catch {
+    webGLSupport = false;
+  }
+  return webGLSupport;
+}
+
 export type IsometricCubesProps = {
   variant?: "isometric";
   className?: string;
@@ -418,20 +433,27 @@ function IsometricCubes({
 
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
-    const { update, dispose } = createIsometricScene(canvasRef.current, containerRef.current, {
-      cellSize,
-      gap,
-      topColor,
-      leftColor,
-      rightColor,
-      amplitude,
-      speed,
-      damping,
-      idleRipples: idle,
-      idleDelay,
-      glowColor,
-      glow,
-    });
+    if (!isWebGLAvailable()) return;
+    let scene: ReturnType<typeof createIsometricScene>;
+    try {
+      scene = createIsometricScene(canvasRef.current, containerRef.current, {
+        cellSize,
+        gap,
+        topColor,
+        leftColor,
+        rightColor,
+        amplitude,
+        speed,
+        damping,
+        idleRipples: idle,
+        idleDelay,
+        glowColor,
+        glow,
+      });
+    } catch {
+      return;
+    }
+    const { update, dispose } = scene;
     updateRef.current = update;
     return () => {
       updateRef.current = null;
@@ -897,17 +919,24 @@ function PerspectiveCubes({
 
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
-    const { update, dispose } = createPerspectiveScene(canvasRef.current, containerRef.current, {
-      gridSize,
-      gap,
-      baseColor,
-      waveColor,
-      backgroundColor,
-      glow,
-      amplitude,
-      tilt,
-      idleRipples: idle,
-    });
+    if (!isWebGLAvailable()) return;
+    let scene: ReturnType<typeof createPerspectiveScene>;
+    try {
+      scene = createPerspectiveScene(canvasRef.current, containerRef.current, {
+        gridSize,
+        gap,
+        baseColor,
+        waveColor,
+        backgroundColor,
+        glow,
+        amplitude,
+        tilt,
+        idleRipples: idle,
+      });
+    } catch {
+      return;
+    }
+    const { update, dispose } = scene;
     updateRef.current = update;
     return () => {
       updateRef.current = null;
