@@ -39,16 +39,24 @@ const VIEWS: PortalView[] = [
   'settings',
 ]
 
-function parseHash(hash: string): PortalRoute {
-  const [view, id] = hash.replace(/^#\/?/, '').split('/')
+const ROUTE_CHANGE_EVENT = 'greemoer:routechange'
+
+function parseSearch(search: string): PortalRoute {
+  const params = new URLSearchParams(search)
+  const view = params.get('view')
+  const id = params.get('id')
   if (view === 'opportunities' && id) return { view: 'opportunities', opportunityId: id }
   if (VIEWS.includes(view as PortalView)) return { view: view as PortalView }
   return { view: 'dashboard' }
 }
 
-function subscribeToHash(callback: () => void) {
-  window.addEventListener('hashchange', callback)
-  return () => window.removeEventListener('hashchange', callback)
+function subscribeToRoute(callback: () => void) {
+  window.addEventListener('popstate', callback)
+  window.addEventListener(ROUTE_CHANGE_EVENT, callback)
+  return () => {
+    window.removeEventListener('popstate', callback)
+    window.removeEventListener(ROUTE_CHANGE_EVENT, callback)
+  }
 }
 
 export interface Toast {
@@ -78,12 +86,12 @@ interface PortalContextValue {
 const PortalContext = createContext<PortalContextValue | null>(null)
 
 export function PortalProvider({ children }: { children: ReactNode }) {
-  const hash = useSyncExternalStore(
-    subscribeToHash,
-    () => window.location.hash,
+  const search = useSyncExternalStore(
+    subscribeToRoute,
+    () => window.location.search,
     () => '',
   )
-  const route = useMemo(() => parseHash(hash), [hash])
+  const route = useMemo(() => parseSearch(search), [search])
 
   const [profile, setProfile] = useState<DancerProfile>(mockProfile)
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>(mockPortfolio)
@@ -105,7 +113,10 @@ export function PortalProvider({ children }: { children: ReactNode }) {
 
   const navigate = useCallback(
     (view: PortalView, opportunityId?: string, focusFieldId?: string) => {
-      window.location.hash = opportunityId ? `/${view}/${opportunityId}` : `/${view}`
+      const params = new URLSearchParams({ view })
+      if (opportunityId) params.set('id', opportunityId)
+      window.history.pushState(null, '', `${window.location.pathname}?${params.toString()}`)
+      window.dispatchEvent(new Event(ROUTE_CHANGE_EVENT))
       window.scrollTo({ top: 0 })
       if (focusFieldId) {
         window.setTimeout(() => {
