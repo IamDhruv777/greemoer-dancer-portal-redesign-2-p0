@@ -4,6 +4,7 @@ import { Lock } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { usePortal } from '../portal-provider'
 import { ActionButton, Chip, Panel, SectionHeader, Switch, VerificationBadge } from '../primitives'
+import { VerificationCard } from '../verification-card'
 
 export function SettingsView() {
   const { profile, updateProfile, notify } = usePortal()
@@ -16,6 +17,8 @@ export function SettingsView() {
   return (
     <div className="flex max-w-3xl flex-col gap-10">
       <SectionHeader as="h1" eyebrow="Settings" title="Account & preferences" />
+
+      <VerificationCard />
 
       <SettingsGroup title="Availability">
         <SettingRow

@@ -12,6 +12,7 @@ import {
   type PerformerType,
   type TravelWillingness,
 } from '@/lib/greemoer/types'
+import { ArtistPass } from '../artist-pass'
 import { usePortal } from '../portal-provider'
 import { ProfilePreviewCard } from '../profile-preview-card'
 import {
@@ -328,6 +329,8 @@ export function ProfileView() {
           </div>
         </aside>
       </div>
+
+      <ArtistPass />
 
       <div
         className={cn(

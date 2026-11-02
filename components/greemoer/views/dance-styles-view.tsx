@@ -11,6 +11,7 @@ import {
 } from '@/lib/greemoer/types'
 import { usePortal } from '../portal-provider'
 import { ActionButton, SectionHeader } from '../primitives'
+import { StyleBoard } from '../style-board'
 
 const MAX_STYLES = 6
 const CLASSICAL: DanceStyle[] = ['Bharatanatyam', 'Kathak', 'Odissi', 'Kuchipudi', 'Mohiniyattam', 'Semi-classical']
@@ -149,6 +150,8 @@ export function DanceStylesView() {
           </ul>
         </section>
       ))}
+
+      <StyleBoard selected={selected} />
     </div>
   )
 }

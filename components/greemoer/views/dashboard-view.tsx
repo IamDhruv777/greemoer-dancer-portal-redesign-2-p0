@@ -9,6 +9,7 @@ import { PortfolioGrid, usePortfolioDialogs } from '../portfolio-manager'
 import { usePortal } from '../portal-provider'
 import { ProfilePreviewCard } from '../profile-preview-card'
 import { ActionButton, Eyebrow, SectionHeader } from '../primitives'
+import { StagesGallery } from '../stages-gallery'
 import { WelcomeHero } from '../welcome-hero'
 
 export function DashboardView() {
@@ -92,6 +93,8 @@ export function DashboardView() {
           }
         />
       </section>
+
+      <StagesGallery />
 
       <section aria-labelledby="opps-heading" className="flex flex-col gap-6">
         <SectionHeader

@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { MIN_PORTFOLIO_ITEMS } from '@/lib/greemoer/profile-completion'
+import { BookerPreview } from '../booker-preview'
 import { PortfolioGrid, usePortfolioDialogs } from '../portfolio-manager'
 import { usePortal } from '../portal-provider'
 import { ActionButton, SectionHeader } from '../primitives'
@@ -69,6 +70,8 @@ export function PortfolioView() {
         onEdit={dialogs.openEdit}
         onDelete={dialogs.requestDelete}
       />
+
+      <BookerPreview />
 
       {dialogs.dialogs}
     </div>
