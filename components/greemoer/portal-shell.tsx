@@ -1,6 +1,7 @@
 'use client'
 
 import { Menu } from 'lucide-react'
+import { AnimatePresence, motion, useScroll, useSpring } from 'motion/react'
 import { useState, useSyncExternalStore } from 'react'
 import { Dialog } from '@/components/ui/dialog'
 import { PortalProvider, usePortal } from './portal-provider'
@@ -37,7 +38,7 @@ export function GreemoerPortal() {
 }
 
 function PortalLayout() {
-  const { profile, navigate } = usePortal()
+  const { profile, navigate, route } = usePortal()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -99,10 +100,33 @@ function PortalLayout() {
         </div>
       </Dialog>
 
+      <ScrollProgress />
       <main className="mx-auto w-full max-w-[1280px] px-4 py-8 sm:px-6 md:px-8 lg:px-12 lg:py-12">
-        <ActiveView />
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={`${route.view}-${route.opportunityId ?? ''}`}
+            initial={{ opacity: 0, y: 24, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -12, filter: 'blur(6px)' }}
+            transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
+          >
+            <ActiveView />
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
+  )
+}
+
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 24 })
+  return (
+    <motion.div
+      aria-hidden="true"
+      className="fixed inset-x-0 top-0 z-50 h-[3px] origin-left bg-gradient-to-r from-brand via-[#ffa62c] to-brand shadow-[0_0_12px_var(--brand)] md:left-[76px] lg:left-64"
+      style={{ scaleX }}
+    />
   )
 }
 

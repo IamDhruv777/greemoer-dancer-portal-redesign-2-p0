@@ -1,6 +1,7 @@
 'use client'
 
 import { CalendarDays, Check, IndianRupee, MapPin, Sparkles } from 'lucide-react'
+import { SpotlightCard, TiltCard } from '@/components/ui/spotlight-card'
 import { cn } from '@/lib/utils'
 import { daysUntil, deadlineLabel, formatDate, formatFeeRange } from '@/lib/greemoer/format'
 import type { Application, DancerProfile, Opportunity } from '@/lib/greemoer/types'
@@ -29,12 +30,20 @@ export function OpportunityCard({
   const closed = daysUntil(opportunity.deadline) < 0
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-shadow hover:shadow-lg">
+    <TiltCard intensity={5}>
+    <SpotlightCard
+      as="article"
+      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card transition-shadow duration-500 hover:shadow-[0_30px_60px_-28px_rgb(20_20_19/0.45)]"
+    >
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         <img
           src={opportunity.imageUrl || '/placeholder.svg'}
           alt=""
-          className="size-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+          className="size-full object-cover transition-transform duration-1000 group-hover:scale-[1.08] group-hover:-rotate-1"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-90"
+          aria-hidden="true"
         />
         <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-4">
           <Chip className="bg-card/95 backdrop-blur">{opportunity.eventType}</Chip>
@@ -94,7 +103,12 @@ export function OpportunityCard({
               urgent && !closed ? 'text-foreground' : 'text-muted-foreground',
             )}
           >
-            {urgent && !closed ? <span className="size-1.5 rounded-full bg-brand" aria-hidden="true" /> : null}
+            {urgent && !closed ? (
+              <span className="relative flex size-2" aria-hidden="true">
+                <span className="absolute inset-0 rounded-full bg-brand [animation:ping-ring_1.6s_ease-out_infinite]" />
+                <span className="relative size-2 rounded-full bg-brand" />
+              </span>
+            ) : null}
             {deadlineLabel(opportunity.deadline)}
           </p>
           {application ? (
@@ -115,6 +129,7 @@ export function OpportunityCard({
           )}
         </div>
       </div>
-    </article>
+    </SpotlightCard>
+    </TiltCard>
   )
 }

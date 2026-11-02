@@ -2,6 +2,8 @@
 
 import { ArrowRight, Send } from 'lucide-react'
 import { useState } from 'react'
+import { Reveal } from '@/components/ui/reveal'
+import { SpotlightCard } from '@/components/ui/spotlight-card'
 import { cn } from '@/lib/utils'
 import { formatDate, formatINR } from '@/lib/greemoer/format'
 import type { Application, ApplicationStatus } from '@/lib/greemoer/types'
@@ -48,14 +50,19 @@ export function ApplicationsView() {
         </div>
       ) : (
         <ul className="flex flex-col gap-4">
-          {rows.map(({ app, opp }) => (
-            <li key={app.id}>
-              <article className="flex flex-col gap-5 rounded-3xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:p-5">
-                <img
-                  src={opp!.imageUrl || '/placeholder.svg'}
-                  alt=""
-                  className="aspect-[16/10] w-full rounded-2xl object-cover sm:w-40"
-                />
+          {rows.map(({ app, opp }, index) => (
+            <Reveal as="li" key={app.id} delay={index * 0.07}>
+              <SpotlightCard
+                as="article"
+                className="group flex flex-col gap-5 rounded-3xl border border-border bg-card p-4 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_50px_-30px_rgb(20_20_19/0.45)] sm:flex-row sm:items-center sm:p-5"
+              >
+                <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden rounded-2xl sm:w-40">
+                  <img
+                    src={opp!.imageUrl || '/placeholder.svg'}
+                    alt=""
+                    className="size-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                  />
+                </div>
                 <div className="flex min-w-0 flex-1 flex-col gap-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={cn('rounded-full px-2.5 py-1 text-xs font-medium', statusStyles[app.status])}>
@@ -75,13 +82,25 @@ export function ApplicationsView() {
                       const reached = PIPELINE.indexOf(app.status) >= i
                       return (
                         <li key={step} className="flex items-center gap-2 text-xs">
-                          <span
-                            className={cn('size-2 rounded-full', reached ? 'bg-ink' : 'bg-input')}
-                            aria-hidden="true"
-                          />
+                          <span className="relative flex size-2.5" aria-hidden="true">
+                            {PIPELINE.indexOf(app.status) === i ? (
+                              <span className="absolute inset-0 rounded-full bg-brand [animation:ping-ring_2s_ease-out_infinite]" />
+                            ) : null}
+                            <span
+                              className={cn(
+                                'relative size-2.5 rounded-full transition-colors duration-500',
+                                reached ? 'bg-brand shadow-[0_0_10px_var(--brand)]' : 'bg-input',
+                              )}
+                            />
+                          </span>
                           <span className={reached ? 'text-foreground' : 'text-muted-foreground'}>{step}</span>
                           {i < PIPELINE.length - 1 ? (
-                            <span className="h-px w-4 bg-input sm:w-8" aria-hidden="true" />
+                            <span className="relative h-0.5 w-4 overflow-hidden rounded-full bg-input sm:w-8" aria-hidden="true">
+                              <span
+                                className="absolute inset-y-0 left-0 bg-brand transition-[width] duration-1000"
+                                style={{ width: PIPELINE.indexOf(app.status) > i ? '100%' : '0%' }}
+                              />
+                            </span>
                           ) : null}
                         </li>
                       )
@@ -98,8 +117,8 @@ export function ApplicationsView() {
                     </ActionButton>
                   ) : null}
                 </div>
-              </article>
-            </li>
+              </SpotlightCard>
+            </Reveal>
           ))}
         </ul>
       )}

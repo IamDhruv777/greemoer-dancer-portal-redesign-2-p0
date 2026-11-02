@@ -8,6 +8,8 @@ import type {
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
 } from 'react'
+import { Reveal, WordReveal } from '@/components/ui/reveal'
+import { SpotlightCard } from '@/components/ui/spotlight-card'
 import { cn } from '@/lib/utils'
 import type { VerificationStatus } from '@/lib/greemoer/types'
 
@@ -15,11 +17,13 @@ type Tone = 'ink' | 'brand' | 'outline' | 'ghost' | 'danger'
 type Size = 'sm' | 'md' | 'lg'
 
 const toneClasses: Record<Tone, string> = {
-  ink: 'bg-ink text-ink-foreground hover:bg-ink/85',
-  brand: 'bg-brand text-brand-foreground hover:bg-brand/85',
-  outline: 'border border-border bg-transparent text-foreground hover:bg-muted',
+  ink: 'btn-shine bg-ink text-ink-foreground hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-10px_rgb(20_20_19/0.6)]',
+  brand:
+    'btn-shine bg-brand text-brand-foreground hover:-translate-y-0.5 hover:shadow-[0_10px_34px_-8px_var(--brand)]',
+  outline:
+    'border border-border bg-card/60 text-foreground backdrop-blur hover:-translate-y-0.5 hover:border-ink hover:bg-card',
   ghost: 'bg-transparent text-foreground hover:bg-muted',
-  danger: 'bg-destructive text-white hover:bg-destructive/90',
+  danger: 'btn-shine bg-destructive text-white hover:-translate-y-0.5 hover:bg-destructive/90',
 }
 
 const sizeClasses: Record<Size, string> = {
@@ -44,7 +48,7 @@ export function ActionButton({
     <button
       type={type}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+        'inline-flex shrink-0 items-center justify-center rounded-full font-medium whitespace-nowrap transition-all duration-300 active:translate-y-0 active:scale-[0.97] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
         toneClasses[tone],
         sizeClasses[size],
         className,
@@ -66,7 +70,7 @@ export function IconButton({
       aria-label={label}
       title={label}
       className={cn(
-        'inline-flex size-9 items-center justify-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4',
+        'inline-flex size-9 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 active:scale-90 outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4',
         className,
       )}
       {...props}
@@ -80,10 +84,14 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
   return (
     <p
       className={cn(
-        'text-[11px] font-medium tracking-[0.18em] text-muted-foreground uppercase',
+        'flex items-center gap-2.5 text-[11px] font-medium tracking-[0.18em] text-muted-foreground uppercase',
         className,
       )}
     >
+      <span className="relative flex size-2 shrink-0" aria-hidden="true">
+        <span className="absolute inset-0 rounded-full bg-brand [animation:ping-ring_2.4s_ease-out_infinite]" />
+        <span className="relative size-2 rounded-full bg-brand" />
+      </span>
       {children}
     </p>
   )
@@ -112,8 +120,12 @@ export function SectionHeader({
             Heading === 'h1' ? 'text-4xl md:text-5xl' : 'text-3xl md:text-4xl',
           )}
         >
-          {title}
+          <WordReveal text={title} />
         </Heading>
+        <span
+          className="mt-1 h-[3px] w-14 rounded-full bg-gradient-to-r from-brand via-brand to-transparent"
+          aria-hidden="true"
+        />
         {description ? (
           <p className="max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
             {description}
@@ -137,11 +149,11 @@ export function Chip({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap',
+        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap transition-transform duration-300 hover:-translate-y-0.5 hover:scale-105',
         tone === 'default' && 'bg-muted text-foreground',
-        tone === 'brand' && 'bg-brand text-brand-foreground',
+        tone === 'brand' && 'bg-brand text-brand-foreground shadow-[0_0_0_3px_color-mix(in_oklab,var(--brand)_25%,transparent)]',
         tone === 'ink' && 'bg-ink text-ink-foreground',
-        tone === 'outline' && 'border border-border text-foreground',
+        tone === 'outline' && 'border border-border bg-card/50 text-foreground backdrop-blur hover:border-ink',
         className,
       )}
     >
@@ -171,8 +183,9 @@ export function VerificationBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
+        'btn-shine inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
         meta.className,
+        status === 'verified' && '[&::after]:animate-[shimmer_3.2s_ease-in-out_infinite]',
         className,
       )}
     >
@@ -205,15 +218,20 @@ export function CompletionBar({
       )}
     >
       <div
-        className="h-full rounded-full bg-brand transition-[width] duration-500"
+        className="relative h-full overflow-hidden rounded-full bg-gradient-to-r from-brand to-[#ffa62c] shadow-[0_0_12px_var(--brand)] transition-[width] duration-1000 ease-out"
         style={{ width: `${percent}%` }}
-      />
+      >
+        <span
+          className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent [animation:shimmer_2.4s_ease-in-out_infinite]"
+          aria-hidden="true"
+        />
+      </div>
     </div>
   )
 }
 
 const fieldBase =
-  'w-full rounded-xl border border-input bg-card px-3.5 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-colors focus-visible:border-ink focus-visible:ring-2 focus-visible:ring-ink/10 disabled:opacity-60'
+  'w-full rounded-xl border border-input bg-card/80 px-3.5 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none transition-all duration-300 hover:border-ink/50 focus-visible:-translate-y-0.5 focus-visible:border-ink focus-visible:bg-card focus-visible:shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_40%,transparent),0_10px_24px_-14px_rgb(20_20_19/0.5)] disabled:opacity-60'
 
 export function Field({
   id,
@@ -288,14 +306,14 @@ export function Switch({
       disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
-        'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-        checked ? 'bg-ink' : 'bg-input',
+        'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        checked ? 'bg-ink shadow-[0_0_16px_-2px_var(--brand)]' : 'bg-input',
       )}
     >
       <span
         className={cn(
-          'inline-block size-5 rounded-full bg-card shadow transition-transform',
-          checked ? 'translate-x-5.5' : 'translate-x-0.5',
+          'flex size-5 items-center justify-center rounded-full shadow transition-all duration-300 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]',
+          checked ? 'translate-x-5.5 bg-brand' : 'translate-x-0.5 bg-card',
         )}
       />
     </button>
@@ -310,6 +328,16 @@ export function Panel({
   className?: string
 }) {
   return (
-    <section className={cn('rounded-3xl border border-border bg-card', className)}>{children}</section>
+    <Reveal>
+      <SpotlightCard
+        as="section"
+        className={cn(
+          'rounded-3xl border border-border bg-card transition-shadow duration-500 hover:shadow-[0_24px_60px_-30px_rgb(20_20_19/0.35)]',
+          className,
+        )}
+      >
+        {children}
+      </SpotlightCard>
+    </Reveal>
   )
 }

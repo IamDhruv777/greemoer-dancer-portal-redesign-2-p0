@@ -10,6 +10,7 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react'
+import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import type { PortalView } from '@/lib/greemoer/types'
 import { usePortal } from './portal-provider'
@@ -28,7 +29,10 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
   return (
     <span className="inline-flex items-baseline gap-0.5 font-display text-2xl leading-none tracking-tight">
       {compact ? 'g' : 'greemoer'}
-      <span className="inline-block size-1.5 rounded-full bg-brand" aria-hidden="true" />
+      <span className="relative inline-flex size-1.5" aria-hidden="true">
+        <span className="absolute inset-0 rounded-full bg-brand [animation:ping-ring_2.2s_ease-out_infinite]" />
+        <span className="relative size-1.5 rounded-full bg-brand" />
+      </span>
     </span>
   )
 }
@@ -66,29 +70,32 @@ export function SidebarNav({
                 aria-current={active ? 'page' : undefined}
                 title={collapsible ? label : undefined}
                 className={cn(
-                  'group flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
-                  collapsible && 'md:justify-center md:px-0 lg:justify-start lg:px-3',
+                  'group relative flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm transition-all duration-300 outline-none hover:translate-x-0.5 focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+                  collapsible && 'md:justify-center md:px-0 lg:justify-start lg:px-3 md:hover:translate-x-0',
                   active
-                    ? 'bg-sidebar-accent text-sidebar-foreground'
+                    ? 'text-sidebar-foreground'
                     : 'text-ink-muted hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
                 )}
               >
-                <span className="relative">
-                  <Icon className="size-[18px]" aria-hidden="true" />
-                  {active ? (
-                    <span
-                      className="absolute -top-0.5 -right-1 size-1.5 rounded-full bg-brand"
-                      aria-hidden="true"
-                    />
-                  ) : null}
+                {active ? (
+                  <motion.span
+                    layoutId={`${collapsible ? 'rail' : 'drawer'}-nav-pill`}
+                    className="absolute inset-0 rounded-xl bg-sidebar-accent shadow-[inset_0_0_0_1px_rgb(255_199_44/0.25),0_0_24px_-6px_rgb(255_199_44/0.35)]"
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  >
+                    <span className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-brand" />
+                  </motion.span>
+                ) : null}
+                <span className="relative transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
+                  <Icon className={cn('size-[18px]', active && 'text-brand')} aria-hidden="true" />
                 </span>
-                <span className={cn('flex-1 text-left', collapsible && 'md:sr-only lg:not-sr-only')}>
+                <span className={cn('relative flex-1 text-left', collapsible && 'md:sr-only lg:not-sr-only lg:relative')}>
                   {label}
                 </span>
                 {count ? (
                   <span
                     className={cn(
-                      'rounded-full px-1.5 text-[11px] tabular-nums',
+                      'relative rounded-full px-1.5 text-[11px] tabular-nums',
                       active ? 'bg-brand text-brand-foreground' : 'bg-sidebar-accent text-ink-muted',
                       collapsible && 'md:hidden lg:inline',
                     )}
@@ -116,12 +123,22 @@ export function SidebarIdentity({ collapsible = false }: { collapsible?: boolean
         collapsible && 'md:justify-center lg:justify-start',
       )}
     >
-      <Avatar src={profile.photoUrl} name={profile.stageName} className="size-10" />
+      <span className="relative inline-flex shrink-0 rounded-full p-[2px]">
+        <span
+          className="absolute inset-0 rounded-full [animation:spin-slow_6s_linear_infinite]"
+          style={{ background: 'conic-gradient(from 0deg, var(--brand), transparent 55%, var(--brand))' }}
+          aria-hidden="true"
+        />
+        <Avatar src={profile.photoUrl} name={profile.stageName} className="relative size-10 ring-2 ring-sidebar" />
+      </span>
       <span className={cn('flex min-w-0 flex-1 flex-col gap-1.5', collapsible && 'md:hidden lg:flex')}>
         <span className="truncate text-sm font-medium text-sidebar-foreground">{profile.stageName}</span>
         <span className="flex items-center gap-2">
           <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
-            <span className="block h-full rounded-full bg-brand" style={{ width: `${completion.percent}%` }} />
+            <span
+              className="block h-full rounded-full bg-gradient-to-r from-brand to-[#ffa62c] shadow-[0_0_10px_var(--brand)] transition-[width] duration-1000"
+              style={{ width: `${completion.percent}%` }}
+            />
           </span>
           <span className="text-[11px] tabular-nums text-ink-muted">{completion.percent}%</span>
         </span>

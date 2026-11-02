@@ -100,3 +100,185 @@
     color: var(--brand-foreground);
   }
 }
+
+/* ---------- Greemoer motion + effects layer ---------- */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(-8vmax, 10vmax, 0) scale(1.15); }
+}
+@keyframes drift-alt {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to { transform: translate3d(10vmax, -6vmax, 0) scale(0.95); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes shimmer {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(220%); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+@keyframes ping-ring {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes gradient-pan {
+  from { background-position: 0% 50%; }
+  to { background-position: 200% 50%; }
+}
+
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora::before,
+.aurora::after {
+  content: '';
+  position: absolute;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 9999px;
+  filter: blur(100px);
+}
+.aurora::before {
+  top: -22vmax;
+  right: -14vmax;
+  background: radial-gradient(circle, var(--brand), transparent 65%);
+  opacity: 0.38;
+  animation: drift 24s ease-in-out infinite alternate;
+}
+.aurora::after {
+  bottom: -26vmax;
+  left: -12vmax;
+  background: radial-gradient(circle, #ff9f6b, transparent 65%);
+  opacity: 0.2;
+  animation: drift-alt 30s ease-in-out infinite alternate;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Mouse-following spotlight + glowing border. Set --mx/--my from pointer events. */
+.spotlight {
+  position: relative;
+  --mx: 50%;
+  --my: 0%;
+}
+.spotlight::before,
+.spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.spotlight::before {
+  padding: 1.5px;
+  background: radial-gradient(360px circle at var(--mx) var(--my), var(--brand), transparent 62%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  z-index: 3;
+}
+.spotlight::after {
+  background: radial-gradient(420px circle at var(--mx) var(--my), color-mix(in oklab, var(--brand) 16%, transparent), transparent 60%);
+  z-index: 2;
+}
+.spotlight:hover::before,
+.spotlight:hover::after,
+.spotlight:focus-within::before,
+.spotlight:focus-within::after {
+  opacity: 1;
+}
+
+/* Button sheen sweep */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 40%;
+  background: linear-gradient(105deg, transparent, rgb(255 255 255 / 0.35), transparent);
+  transform: translateX(-120%);
+}
+.btn-shine:hover::after {
+  animation: shimmer 0.9s ease;
+}
+
+/* Animated underline link */
+.link-underline {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat;
+  transition: background-size 0.35s ease;
+}
+.link-underline:hover,
+.link-underline:focus-visible {
+  background-size: 100% 1.5px;
+}
+
+.text-shimmer {
+  background: linear-gradient(90deg, var(--ink) 0%, var(--ink) 35%, #b8860b 50%, var(--ink) 65%, var(--ink) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-pan 5s linear infinite;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  h1.font-display,
+  h2.font-display,
+  h3.font-display {
+    animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora::before,
+  .aurora::after,
+  .marquee-track,
+  .text-shimmer {
+    animation: none;
+  }
+}
+
+/* Thin brand scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-muted) transparent;
+}

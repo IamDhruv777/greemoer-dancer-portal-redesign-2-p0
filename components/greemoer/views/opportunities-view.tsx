@@ -1,7 +1,9 @@
 'use client'
 
 import { SearchX } from 'lucide-react'
+import { motion } from 'motion/react'
 import { useState } from 'react'
+import { Reveal } from '@/components/ui/reveal'
 import { cn } from '@/lib/utils'
 import type { EventType } from '@/lib/greemoer/types'
 import { useApplyDialog } from '../apply-dialog'
@@ -50,13 +52,20 @@ export function OpportunitiesView() {
               aria-pressed={filter === f.id}
               onClick={() => setFilter(f.id)}
               className={cn(
-                'h-9 shrink-0 rounded-full border px-4 text-sm transition-colors',
+                'relative h-9 shrink-0 rounded-full border px-4 text-sm transition-all duration-300 hover:-translate-y-0.5 active:scale-95',
                 filter === f.id
-                  ? 'border-ink bg-ink text-ink-foreground'
-                  : 'border-border text-foreground hover:bg-muted',
+                  ? 'border-ink text-ink-foreground'
+                  : 'border-border bg-card/60 text-foreground backdrop-blur hover:border-ink',
               )}
             >
-              {f.label}
+              {filter === f.id ? (
+                <motion.span
+                  layoutId="opp-filter-pill"
+                  className="absolute inset-0 rounded-full bg-ink shadow-[0_8px_24px_-8px_rgb(20_20_19/0.6)]"
+                  transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                />
+              ) : null}
+              <span className="relative">{f.label}</span>
             </button>
           ))}
         </div>
@@ -64,8 +73,8 @@ export function OpportunitiesView() {
 
       {visible.length > 0 ? (
         <ul className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {visible.map((opp) => (
-            <li key={opp.id}>
+          {visible.map((opp, index) => (
+            <Reveal as="li" key={`${filter}-${opp.id}`} delay={(index % 3) * 0.08}>
               <OpportunityCard
                 opportunity={opp}
                 profile={profile}
@@ -73,7 +82,7 @@ export function OpportunitiesView() {
                 onOpen={() => navigate('opportunities', opp.id)}
                 onApply={() => apply.openApply(opp)}
               />
-            </li>
+            </Reveal>
           ))}
         </ul>
       ) : (
