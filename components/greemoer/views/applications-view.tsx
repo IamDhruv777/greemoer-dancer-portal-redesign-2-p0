@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, Send } from 'lucide-react'
+import { ArrowRight, PartyPopper, Send, Star } from 'lucide-react'
 import { useState } from 'react'
 import { Reveal } from '@/components/ui/reveal'
 import { SpotlightCard } from '@/components/ui/spotlight-card'
@@ -10,6 +10,8 @@ import type { Application, ApplicationStatus } from '@/lib/greemoer/types'
 import { ConfirmDialog } from '../confirm-dialog'
 import { usePortal } from '../portal-provider'
 import { ActionButton, SectionHeader } from '../primitives'
+import { RevealBand } from '../reveal-band'
+import { WobbleEmpty, WobbleStats } from '../wobble-stats'
 
 const statusStyles: Record<ApplicationStatus, string> = {
   Submitted: 'bg-muted text-foreground',
@@ -37,17 +39,41 @@ export function ApplicationsView() {
         description="Bookers usually respond within five working days. You'll be notified here and by email when a status changes."
       />
 
+      <WobbleStats
+        label="Application summary"
+        stats={[
+          { label: 'Pitched', value: applications.length, hint: 'Applications sent', tone: 'ink', icon: <Send className="size-5 text-brand" /> },
+          {
+            label: 'Shortlisted',
+            value: applications.filter((a) => a.status === 'Shortlisted').length,
+            hint: 'Bookers want a closer look',
+            tone: 'brand',
+            icon: <Star className="size-5" />,
+          },
+          {
+            label: 'Booked',
+            value: applications.filter((a) => a.status === 'Booked').length,
+            hint: 'Confirmed performances',
+            tone: 'graphite',
+            icon: <PartyPopper className="size-5 text-brand" />,
+          },
+        ]}
+      />
+
+      <RevealBand
+        title="From pitch to performance"
+        description="Hover to see where every application is headed."
+        text="Pitched."
+        revealText="Booked."
+      />
+
       {rows.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-input py-16 text-center">
-          <span className="flex size-12 items-center justify-center rounded-full bg-brand text-brand-foreground">
-            <Send className="size-5" aria-hidden="true" />
-          </span>
-          <p className="font-display text-2xl">No applications yet</p>
-          <ActionButton tone="ink" onClick={() => navigate('opportunities')}>
+        <WobbleEmpty icon={<Send className="size-5" aria-hidden="true" />} title="No applications yet">
+          <ActionButton tone="brand" onClick={() => navigate('opportunities')}>
             Find a gig
             <ArrowRight aria-hidden="true" />
           </ActionButton>
-        </div>
+        </WobbleEmpty>
       ) : (
         <ul className="flex flex-col gap-4">
           {rows.map(({ app, opp }, index) => (

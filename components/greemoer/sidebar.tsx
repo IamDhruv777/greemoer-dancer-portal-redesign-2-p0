@@ -10,7 +10,8 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react'
-import { motion } from 'motion/react'
+import { useState } from 'react'
+import { DesktopSidebar, MobileSidebar, Sidebar, SidebarLink, useSidebar } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
 import type { PortalView } from '@/lib/greemoer/types'
 import { usePortal } from './portal-provider'
@@ -37,14 +38,9 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
   )
 }
 
-export function SidebarNav({
-  collapsible = false,
-  onNavigate,
-}: {
-  collapsible?: boolean
-  onNavigate?: () => void
-}) {
-  const { route, navigate, applications, opportunities } = usePortal()
+function SidebarContents({ animatePill }: { animatePill: boolean }) {
+  const { open, setOpen } = useSidebar()
+  const { route, navigate, applications, opportunities, profile, completion } = usePortal()
   const appliedIds = new Set(applications.map((a) => a.opportunityId))
   const openCount = opportunities.filter((o) => !appliedIds.has(o.id)).length
 
@@ -53,97 +49,119 @@ export function SidebarNav({
     applications: applications.length,
   }
 
+  const go = (view: PortalView) => {
+    navigate(view)
+    setOpen(false)
+  }
+
   return (
-    <nav aria-label="Dancer portal">
-      <ul className="flex flex-col gap-1">
-        {NAV_ITEMS.map(({ view, label, icon: Icon }) => {
-          const active = route.view === view
-          const count = counts[view]
-          return (
-            <li key={view}>
-              <button
-                type="button"
-                onClick={() => {
-                  navigate(view)
-                  onNavigate?.()
+    <>
+      <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
+        <button
+          type="button"
+          onClick={() => go('dashboard')}
+          aria-label="Greemoer dashboard"
+          className="mb-8 flex h-10 w-fit items-center rounded-lg px-2 outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+        >
+          <Wordmark compact={!open} />
+        </button>
+        {open ? (
+          <p className="mb-3 px-2 text-[11px] tracking-[0.18em] text-ink-muted uppercase">Dancer portal</p>
+        ) : null}
+        <nav aria-label="Dancer portal" className="flex flex-col gap-1">
+          {NAV_ITEMS.map(({ view, label, icon: Icon }) => {
+            const active = route.view === view
+            const count = counts[view]
+            return (
+              <SidebarLink
+                key={view}
+                active={active}
+                pillId={animatePill ? 'portal-nav-pill' : undefined}
+                title={label}
+                onClick={(event) => {
+                  event.preventDefault()
+                  go(view)
                 }}
-                aria-current={active ? 'page' : undefined}
-                title={collapsible ? label : undefined}
+                link={{
+                  label,
+                  href: `#/${view}`,
+                  icon: (
+                    <Icon
+                      className={cn('size-5 shrink-0 transition-colors', active ? 'text-brand' : 'text-ink-muted')}
+                      aria-hidden="true"
+                    />
+                  ),
+                }}
+                badge={
+                  count ? (
+                    <span
+                      className={cn(
+                        'rounded-full px-1.5 text-[11px] tabular-nums',
+                        active ? 'bg-brand text-brand-foreground' : 'bg-sidebar-accent text-ink-muted',
+                      )}
+                    >
+                      {count}
+                    </span>
+                  ) : null
+                }
                 className={cn(
-                  'group relative flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm transition-all duration-300 outline-none hover:translate-x-0.5 focus-visible:ring-2 focus-visible:ring-sidebar-ring',
-                  collapsible && 'md:justify-center md:px-0 lg:justify-start lg:px-3 md:hover:translate-x-0',
-                  active
-                    ? 'text-sidebar-foreground'
-                    : 'text-ink-muted hover:bg-sidebar-accent/60 hover:text-sidebar-foreground',
+                  'rounded-xl px-2 outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+                  !active && 'hover:bg-sidebar-accent/60',
                 )}
-              >
-                {active ? (
-                  <motion.span
-                    layoutId={`${collapsible ? 'rail' : 'drawer'}-nav-pill`}
-                    className="absolute inset-0 rounded-xl bg-sidebar-accent shadow-[inset_0_0_0_1px_rgb(255_199_44/0.25),0_0_24px_-6px_rgb(255_199_44/0.35)]"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  >
-                    <span className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-brand" />
-                  </motion.span>
-                ) : null}
-                <span className="relative transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-                  <Icon className={cn('size-[18px]', active && 'text-brand')} aria-hidden="true" />
-                </span>
-                <span className={cn('relative flex-1 text-left', collapsible && 'md:sr-only lg:not-sr-only lg:relative')}>
-                  {label}
-                </span>
-                {count ? (
-                  <span
-                    className={cn(
-                      'relative rounded-full px-1.5 text-[11px] tabular-nums',
-                      active ? 'bg-brand text-brand-foreground' : 'bg-sidebar-accent text-ink-muted',
-                      collapsible && 'md:hidden lg:inline',
-                    )}
-                  >
-                    {count}
-                  </span>
-                ) : null}
-              </button>
-            </li>
-          )
-        })}
-      </ul>
-    </nav>
+              />
+            )
+          })}
+        </nav>
+      </div>
+
+      <SidebarLink
+        title={profile.stageName}
+        onClick={(event) => {
+          event.preventDefault()
+          go('profile')
+        }}
+        className="rounded-xl px-1 hover:bg-sidebar-accent"
+        badge={<span className="text-[11px] tabular-nums text-ink-muted">{completion.percent}%</span>}
+        link={{
+          label: profile.stageName,
+          href: '#/profile',
+          icon: (
+            <span className="relative inline-flex shrink-0 rounded-full p-[2px]">
+              <span
+                className="absolute inset-0 rounded-full [animation:spin-slow_6s_linear_infinite]"
+                style={{ background: 'conic-gradient(from 0deg, var(--brand), transparent 55%, var(--brand))' }}
+                aria-hidden="true"
+              />
+              <Avatar src={profile.photoUrl} name={profile.stageName} className="relative size-7 ring-2 ring-sidebar" />
+            </span>
+          ),
+        }}
+      />
+    </>
   )
 }
 
-export function SidebarIdentity({ collapsible = false }: { collapsible?: boolean }) {
-  const { profile, completion, navigate } = usePortal()
+export function PortalSidebar() {
+  const [open, setOpen] = useState(false)
+  const { navigate } = usePortal()
+
   return (
-    <button
-      type="button"
-      onClick={() => navigate('profile')}
-      className={cn(
-        'flex w-full items-center gap-3 rounded-2xl p-2 text-left transition-colors hover:bg-sidebar-accent outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
-        collapsible && 'md:justify-center lg:justify-start',
-      )}
-    >
-      <span className="relative inline-flex shrink-0 rounded-full p-[2px]">
-        <span
-          className="absolute inset-0 rounded-full [animation:spin-slow_6s_linear_infinite]"
-          style={{ background: 'conic-gradient(from 0deg, var(--brand), transparent 55%, var(--brand))' }}
-          aria-hidden="true"
-        />
-        <Avatar src={profile.photoUrl} name={profile.stageName} className="relative size-10 ring-2 ring-sidebar" />
-      </span>
-      <span className={cn('flex min-w-0 flex-1 flex-col gap-1.5', collapsible && 'md:hidden lg:flex')}>
-        <span className="truncate text-sm font-medium text-sidebar-foreground">{profile.stageName}</span>
-        <span className="flex items-center gap-2">
-          <span className="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
-            <span
-              className="block h-full rounded-full bg-gradient-to-r from-brand to-[#ffa62c] shadow-[0_0_10px_var(--brand)] transition-[width] duration-1000"
-              style={{ width: `${completion.percent}%` }}
-            />
-          </span>
-          <span className="text-[11px] tabular-nums text-ink-muted">{completion.percent}%</span>
-        </span>
-      </span>
-    </button>
+    <Sidebar open={open} setOpen={setOpen}>
+      <DesktopSidebar className="fixed inset-y-0 left-0 z-40 h-dvh justify-between gap-10 border-r border-white/5">
+        <SidebarContents animatePill />
+      </DesktopSidebar>
+      <MobileSidebar
+        barClassName="sticky top-0 z-30 h-16 border-b border-white/10 py-0"
+        leading={
+          <button type="button" onClick={() => navigate('dashboard')} aria-label="Greemoer dashboard" className="text-sidebar-foreground">
+            <Wordmark />
+          </button>
+        }
+        className="justify-between gap-10"
+      >
+        <SidebarContents animatePill={false} />
+      </MobileSidebar>
+    </Sidebar>
   )
 }
 

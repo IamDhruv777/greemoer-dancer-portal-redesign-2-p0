@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus } from 'lucide-react'
+import { Camera, Clapperboard, Layers, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { MIN_PORTFOLIO_ITEMS } from '@/lib/greemoer/profile-completion'
@@ -8,6 +8,8 @@ import { BookerPreview } from '../booker-preview'
 import { PortfolioGrid, usePortfolioDialogs } from '../portfolio-manager'
 import { usePortal } from '../portal-provider'
 import { ActionButton, SectionHeader } from '../primitives'
+import { RevealBand } from '../reveal-band'
+import { WobbleStats } from '../wobble-stats'
 
 type Filter = 'all' | 'video' | 'image'
 
@@ -42,6 +44,22 @@ export function PortfolioView() {
             Upload performance
           </ActionButton>
         }
+      />
+
+      <WobbleStats
+        label="Portfolio summary"
+        stats={[
+          { label: 'Pieces', value: counts.all, hint: `Goal: ${MIN_PORTFOLIO_ITEMS}+ for more bookings`, tone: 'ink', icon: <Layers className="size-5 text-brand" /> },
+          { label: 'Videos', value: counts.video, hint: 'Stage recordings & reels', tone: 'brand', icon: <Clapperboard className="size-5" /> },
+          { label: 'Photos', value: counts.image, hint: 'Performance stills', tone: 'graphite', icon: <Camera className="size-5 text-brand" /> },
+        ]}
+      />
+
+      <RevealBand
+        title="Bookers decide in seconds"
+        description="Lead with your strongest performance. Hover to see what it earns you."
+        text="Press play."
+        revealText="Get booked."
       />
 
       <div role="tablist" aria-label="Filter portfolio" className="flex gap-2 border-b border-border">

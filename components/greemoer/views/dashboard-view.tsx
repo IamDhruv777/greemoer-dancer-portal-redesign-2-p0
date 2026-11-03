@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, Plus } from 'lucide-react'
+import { ArrowRight, Gauge, Plus, Send, Sparkles } from 'lucide-react'
 import { MacbookScroll } from '@/components/ui/macbook-scroll'
 import { daysUntil } from '@/lib/greemoer/format'
 import { useApplyDialog } from '../apply-dialog'
@@ -9,13 +9,20 @@ import { PortfolioGrid, usePortfolioDialogs } from '../portfolio-manager'
 import { usePortal } from '../portal-provider'
 import { ProfilePreviewCard } from '../profile-preview-card'
 import { ActionButton, Eyebrow, SectionHeader } from '../primitives'
+import { RevealBand } from '../reveal-band'
 import { StagesGallery } from '../stages-gallery'
 import { WelcomeHero } from '../welcome-hero'
+import { WobbleStats } from '../wobble-stats'
 
 export function DashboardView() {
-  const { profile, portfolio, opportunities, applications, navigate } = usePortal()
+  const { profile, portfolio, opportunities, applications, completion, navigate } = usePortal()
   const portfolioDialogs = usePortfolioDialogs()
   const apply = useApplyDialog()
+
+  const matchedCount = opportunities.filter(
+    (o) => daysUntil(o.deadline) >= 0 && matchingStyles(o, profile).length > 0,
+  ).length
+  const shortlisted = applications.filter((a) => a.status === 'Shortlisted' || a.status === 'Booked').length
 
   const applicationByOpp = new Map(applications.map((a) => [a.opportunityId, a]))
   const recommended = opportunities
@@ -29,6 +36,34 @@ export function DashboardView() {
   return (
     <div className="flex flex-col gap-16 lg:gap-20">
       <WelcomeHero />
+
+      <WobbleStats
+        label="Your portal at a glance"
+        stats={[
+          {
+            label: 'Profile strength',
+            value: completion.percent,
+            suffix: '%',
+            hint: completion.percent >= 100 ? 'Ready for bookers' : 'Finish your profile to get booked',
+            tone: 'brand',
+            icon: <Gauge className="size-5" />,
+          },
+          {
+            label: 'Gigs for your styles',
+            value: matchedCount,
+            hint: 'Open briefs matching you',
+            tone: 'ink',
+            icon: <Sparkles className="size-5 text-brand" />,
+          },
+          {
+            label: 'Pitches in play',
+            value: applications.length,
+            hint: `${shortlisted} shortlisted or booked`,
+            tone: 'graphite',
+            icon: <Send className="size-5 text-brand" />,
+          },
+        ]}
+      />
 
       <div className="grid gap-10 lg:grid-cols-12 lg:gap-8">
         <section aria-labelledby="preview-heading" className="flex flex-col gap-5 lg:col-span-4">
@@ -93,6 +128,13 @@ export function DashboardView() {
           }
         />
       </section>
+
+      <RevealBand
+        title="Your stage is waiting"
+        description="Move your cursor across the card. Every great booking starts with a profile bookers can't scroll past."
+        text="You rehearse."
+        revealText="They book."
+      />
 
       <StagesGallery />
 
